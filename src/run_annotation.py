@@ -179,7 +179,7 @@ def testPixelMask(img,coordiantes,paths,viewer):
 
 def main():
     directory = input("Enter Directory:\n")
-    image_directory = os.path.join(directory,"ndsi_img")
+    image_directory = os.path.join(directory,"label_img")
     full_data_directory = os.path.join(directory, "full_img")
     checkpointdirectory = os.path.join(directory, "checkpoints")
     # directory = r"C:\Users\marke\Documents\DSC180A-Q1\ee_data"
