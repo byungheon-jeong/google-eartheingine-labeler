@@ -133,9 +133,10 @@ def updateArraysAndSave(data,image_data,labels,image_labels,directory):
 
 def runTestsAndLog(img, coordiantes, paths, viewer, annotated_list,image_file,checkpoint_directory):
     testPixelMask(img, coordiantes, paths, viewer)
+    input("Input ENTER after checking RB pixels")
     annotated_list = np.append(annotated_list, image_file)
     updateLog(annotated_list, checkpoint_directory)
-    input("Input ENTER after checking RB pixels")
+
 
 
 def testPixelMask(img,coordiantes,paths,viewer):
@@ -190,6 +191,8 @@ def main():
 
     for root, dirs, files in os.walk(image_directory):
         for image_file in files:
+            
+            annotated_list, data, labels = loadCheckpoint(directory,num_bands)
             image_path = os.path.join(image_directory, image_file)
             full_image_path = os.path.join(full_data_directory, image_file)
             print(image_path)
