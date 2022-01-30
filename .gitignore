@@ -1,1 +1,3 @@
-testing_data/*
+#Don't Save testing data
+
+testing_data/**
