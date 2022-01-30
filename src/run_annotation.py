@@ -144,7 +144,7 @@ def testPixelMask(img,coordiantes,paths,viewer):
     # nonIceMask = np.where(np.logical_or.reduce([containsWithin(path,img) for path in paths["non_ice"]]))
     
     for label, coordinate in coordiantes.items():
-        colors = np.random.randint(0,255,size=(3,))
+        colors = np.random.randint(100,255,size=(3,))
         viewer.add_points(coordinate,face_color=colors,edge_color =colors,size=10, name=f"{label}_points")
 
     # ice_coordinates = list(zip(iceMask[0],iceMask[1]))
