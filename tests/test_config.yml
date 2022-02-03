@@ -1,0 +1,2 @@
+full_image_path: !!python/str D:\github\google-eartheingine-labeler\testing_data\full_img\Engilchek_glacier_1999-08-10.tif
+image_path: !!python/str D:\github\google-eartheingine-labeler\testing_data\label_img\Engilchek_glacier_1999-08-10.tif

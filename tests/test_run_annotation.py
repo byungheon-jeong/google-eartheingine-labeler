@@ -8,7 +8,7 @@ from src.run_annotation import containsWithin, runNapari, getPolygonMasks, getPi
 class Test_MultiLayers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        config_file = r"C:\Users\marke\Documents\DSC180A-Q1\config\test.yml"
+        config_file = r"D:\github\google-eartheingine-labeler\tests\test_config.yml"
         with open(config_file) as config_file:
             cfg = yaml.load(config_file,Loader=yaml.Loader)
         image_path = cfg["image_path"]
