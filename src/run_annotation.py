@@ -17,6 +17,16 @@ directory = os.path.join(os.getcwd(), "ee_data")
 
 
 def runNapari(img_path, full_img_path):
+    """
+    Opens the napari UI
+
+    Args:
+        img_path ([str]): [path to images files that will be used for labeling]
+        full_img_path ([str]): [path to TIFF files that contain all bands
+
+    Returns:
+        viewer: the Napari API
+    """
     with rasterio.open(img_path) as src:
         img = src.read()
     
@@ -28,6 +38,14 @@ def runNapari(img_path, full_img_path):
 
 
 def getPolygonMasks(viewer):
+    """
+    Gets the coordinates of the edges of drawn polygon from Napari
+    Args:
+        viewer ([napari API]): napari API
+
+    Returns:
+        label_data: coordinates
+    """
     layers = [layer for layer in viewer.layers]
     label_data = {}
 
@@ -40,14 +58,33 @@ def getPolygonMasks(viewer):
 
 
 def containsWithin(path_dimention, img):
-    glacier = path.Path(path_dimention)
+    """
+    Gets the coordinates of all points within the polygon specified by the path_dimention
+
+    Args:
+        path_dimention (list): coordinates of polygon shapes
+        img ([TIFF]): image to label
+
+    Returns:
+        np.array: contains pixels that are in polygon
+    """
+    polygon = path.Path(path_dimention)
+    # These arrays are building a pixel map of image
     indices = np.where(np.all(img == img, axis=0))
     pixels = np.array(list(zip(indices[0],indices[1])))
-#     return pixels
-    return glacier.contains_points(pixels).reshape(img.shape[1:])
+    # return picked pixel coordinates 
+    return polygon.contains_points(pixels).reshape(img.shape[1:])
 
 
 def getPixelMask(img, paths):
+    """
+    This Gets the coordinate list of all polygons specified in paths
+
+    Args:
+        img (TIFF): image to be used during labeling
+        paths np.array: coordiantes of paths
+
+    """
 
     all_masks = {}
     all_coordinates = {}
@@ -72,9 +109,20 @@ def getPixelMask(img, paths):
 
 
 def getTrainingData(masks,img_dimentions):
+    """
+    Generation of labels from aggregated polygon paths
+
+    Args:
+        masks (np.array): cointains all the mask coordinates
+        img_dimentions (np.array): dimnetions of image H,W
+
+    Returns:
+        np.array: indexed starting from 1 to avoid created value at index 0
+    """
     data = np.empty(shape=img_dimentions)
     labels = np.array([])
     for key, mask in masks.items():
+        # Make labels for polygon
         label = np.array([key]*mask.shape[0])
         labels = np.append(labels,label)
         data = np.vstack((data,mask))
@@ -83,6 +131,16 @@ def getTrainingData(masks,img_dimentions):
 
 
 def loadCheckpoint(directory,num_bands):
+    """
+    Implements Checkpoint system by reading list of images already read
+
+    Args:
+        directory (str): [path of directory]
+        num_bands (int): [number of bands within full TIFF]
+
+    Returns:
+        [type]: [description]
+    """
     logpath = os.path.join(directory,"checkpoints", "imgAnnotatedData.npy")
     try:
         with open(logpath, "rb") as f:
@@ -108,11 +166,18 @@ def loadCheckpoint(directory,num_bands):
 
 
 def updateLog(imageList,directory):
+    """
+    Updates the checkpoint image list
+
+    Args:
+        imageList (list): contains all images
+        directory (str): path to the directory with script and checkpoint files
+    """
     logpath = os.path.join(directory, "imgAnnotatedData.npy")
     with open(logpath, "wb") as f:
         np.save(f, imageList)
 
-
+# Saves data from current image
 def updateArraysAndSave(data,image_data,labels,image_labels,directory):
     data = np.vstack((data,image_data))
     labels = np.hstack((labels, image_labels))
@@ -122,14 +187,14 @@ def updateArraysAndSave(data,image_data,labels,image_labels,directory):
     with open(os.path.join(directory, "labels.npy"), "wb") as f:
         np.save(f, labels)
 
-
+# Waits for user input to cycle through images
 def runTestsAndLog(coordiantes, viewer, annotated_list,image_file,checkpoint_directory):
     testPixelMask(coordiantes, viewer)
     input("Input ENTER after checking RB pixels")
     annotated_list = np.append(annotated_list, image_file)
     updateLog(annotated_list, checkpoint_directory)
 
-
+# Prints labeled polygon using points so that user can see if their labels are represented correctly
 def testPixelMask(coordiantes,viewer):
     
     for label, coordinate in coordiantes.items():
@@ -144,7 +209,6 @@ def main():
     image_directory = os.path.join(directory,"label_img")
     full_data_directory = os.path.join(directory, "full_img")
     checkpointdirectory = os.path.join(directory, "checkpoints")
-    # directory = r"C:\Users\marke\Documents\DSC180A-Q1\ee_data"
     num_bands = rasterio.open(os.path.join(full_data_directory,list(os.walk(full_data_directory))[0][-1][-1])).read().shape[0]
     annotated_list, data, labels = loadCheckpoint(directory,num_bands)
 
