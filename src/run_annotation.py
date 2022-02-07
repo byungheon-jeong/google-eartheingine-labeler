@@ -21,8 +21,8 @@ def runNapari(img_path, full_img_path):
     Opens the napari UI
 
     Args:
-        img_path ([str]): [path to images files that will be used for labeling]
-        full_img_path ([str]): [path to TIFF files that contain all bands
+        img_path (str): [path to images files that will be used for labeling]
+        full_img_path (str): [path to TIFF files that contain all bands
 
     Returns:
         viewer: the Napari API
@@ -41,7 +41,7 @@ def getPolygonMasks(viewer):
     """
     Gets the coordinates of the edges of drawn polygon from Napari
     Args:
-        viewer ([napari API]): napari API
+        viewer (napari API): napari API
 
     Returns:
         label_data: coordinates
@@ -63,7 +63,7 @@ def containsWithin(path_dimention, img):
 
     Args:
         path_dimention (list): coordinates of polygon shapes
-        img ([TIFF]): image to label
+        img (TIFF): image to label
 
     Returns:
         np.array: contains pixels that are in polygon
@@ -135,11 +135,8 @@ def loadCheckpoint(directory,num_bands):
     Implements Checkpoint system by reading list of images already read
 
     Args:
-        directory (str): [path of directory]
-        num_bands (int): [number of bands within full TIFF]
-
-    Returns:
-        [type]: [description]
+        directory (str): path of directory
+        num_bands (int): number of bands within full TIFF
     """
     logpath = os.path.join(directory,"checkpoints", "imgAnnotatedData.npy")
     try:
@@ -177,8 +174,18 @@ def updateLog(imageList,directory):
     with open(logpath, "wb") as f:
         np.save(f, imageList)
 
-# Saves data from current image
+
 def updateArraysAndSave(data,image_data,labels,image_labels,directory):
+    """
+    Saves data from current image
+
+    Args:
+        data (np.array): Aggregation of Previous image data
+        image_data (np.array): Current image data
+        labels (np.array): Aggregation of Previous image labels
+        image_labels (np.array): Current image labels 
+        directory (str): Path to directory with the save files
+    """
     data = np.vstack((data,image_data))
     labels = np.hstack((labels, image_labels))
 
@@ -187,15 +194,32 @@ def updateArraysAndSave(data,image_data,labels,image_labels,directory):
     with open(os.path.join(directory, "labels.npy"), "wb") as f:
         np.save(f, labels)
 
-# Waits for user input to cycle through images
+
 def runTestsAndLog(coordiantes, viewer, annotated_list,image_file,checkpoint_directory):
+    """
+     Waits for user input to cycle through images
+
+    Args:
+        coordiantes (np.array): Coordinates of all pixels in the polygons
+        viewer (napari API): 
+        annotated_list (np.array): List with all the previous images
+        image_file (str): Name of current TIFF image
+        checkpoint_directory (str): Directory of checkpoint files
+    """
     testPixelMask(coordiantes, viewer)
     input("Input ENTER after checking RB pixels")
     annotated_list = np.append(annotated_list, image_file)
     updateLog(annotated_list, checkpoint_directory)
 
-# Prints labeled polygon using points so that user can see if their labels are represented correctly
+
 def testPixelMask(coordiantes,viewer):
+    """
+    Prints labeled polygon using points so that user can see if their labels are represented correctly
+
+    Args:
+        coordinates (np.array): All the coordinates in listed polygons
+        viewer (napari API): 
+    """
     
     for label, coordinate in coordiantes.items():
         colors = np.random.randint(100,255,size=(3,))
@@ -212,17 +236,21 @@ def main():
     num_bands = rasterio.open(os.path.join(full_data_directory,list(os.walk(full_data_directory))[0][-1][-1])).read().shape[0]
     annotated_list, data, labels = loadCheckpoint(directory,num_bands)
 
+    # Iterate through the images in directory
     for root, dirs, files in os.walk(image_directory):
         for image_file in files:
             
             annotated_list, data, labels = loadCheckpoint(directory,num_bands)
+            # Get the image that will be used for labeling
             image_path = os.path.join(image_directory, image_file)
+            # Get the images that have all the bands
             full_image_path = os.path.join(full_data_directory, image_file)
             print(image_path)
             if os.path.splitext(image_path)[1] == ".tif" and image_file not in annotated_list:
                 viewer,img, img_full = runNapari(image_path,full_image_path)
                 while True:
-                    response = input("Press Enter after Labeling or input \"SKIP\" in order to skip image:\n")
+                    response = input("Press Enter after Labeling or input \"SKIP\" in order to skip image:\n")\
+                    # If the TIFF image is too distorted or otherwise unusable
                     if response == "SKIP":
                         viewer.close()
                         annotated_list = np.append(annotated_list, image_path)
@@ -230,7 +258,7 @@ def main():
                         break
                     try:    
                         paths = getPolygonMasks(viewer)
-                        # To be changed
+                        # Run the cycle per image
                         masks, coordinates, img_dimentions = getPixelMask(img_full,paths)
                         image_data,image_labels = getTrainingData(masks,img_dimentions)
                         runTestsAndLog(coordinates, viewer, annotated_list,image_file,checkpointdirectory)
@@ -239,9 +267,9 @@ def main():
                         viewer.close()
                         break
                     except Exception as e:
+                        # If there was an accidential button process or some other error
                         print(f"{e} \nLabel the image")
 
-                # return test_mask
         
 
 if __name__ == "__main__":
