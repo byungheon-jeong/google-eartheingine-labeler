@@ -1,13 +1,8 @@
 import os,time, pickle, re
-from tkinter.messagebox import NO
 from unittest.case import TestCase
 import rasterio #for reading images
-import napari, unittest
-
-import multiprocessing as mlt
+import napari
 import numpy as np
-import matplotlib.pyplot as plt 
-import pandas as pd
 
 from matplotlib import path
 from scipy.sparse import data

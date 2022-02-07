@@ -1,0 +1,5 @@
+{
+    "_comment": "Due to the fact that our project product is a qt_5 based labeler, it requires a GUI. This will not run without one. We are planning to either put this on VNC environment or publish as is, to be used on desktop",
+    "dockerhub-id": "b1jeong/q1train:latest",
+    "build-script": "python train.py"
+}
