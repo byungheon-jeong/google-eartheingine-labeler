@@ -21,6 +21,8 @@ RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal && export C_INCLUDE_PATH=/usr/in
 COPY ./requirements.txt /projectHome/requirements.txt
 # RUN conda create --name capstone --file /projectHome/requirements.txt
 RUN pip install -r /projectHome/requirements.txt
+RUN conda install gdal
+
 RUN pip install "napari[all]"
 
 USER bam

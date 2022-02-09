@@ -39,7 +39,6 @@ fonttools==4.25.0
 freetype-py==2.2.0
 fsspec==2021.10.1
 future==0.18.2
-gdal
 google-api-core==1.25.1
 google-api-python-client==1.12.8
 google-auth==1.33.0
