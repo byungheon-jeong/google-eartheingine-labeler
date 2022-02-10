@@ -121,9 +121,12 @@ def getTrainingData(masks,img_dimentions):
     """
     data = np.empty(shape=img_dimentions)
     labels = np.array([])
+    unique_labels = set([])
+
     for key, mask in masks.items():
         # Make labels for polygon
-        label = np.array([key]*mask.shape[0])
+        key_name = str(re.match(r"([a-zA-Z_0-9 ]*)([\[]?)", key).group(1)).strip()
+        label = np.array([key_name]*mask.shape[0])
         labels = np.append(labels,label)
         data = np.vstack((data,mask))
 
@@ -248,7 +251,8 @@ def main():
             print(image_path)
             if os.path.splitext(image_path)[1] == ".tif" and image_file not in annotated_list:
                 viewer,img, img_full = runNapari(image_path,full_image_path)
-                while True:
+                flag = True
+                while flag:
                     response = input("Press Enter after Labeling or input \"SKIP\" in order to skip image:\n")\
                     # If the TIFF image is too distorted or otherwise unusable
                     if response == "SKIP":
@@ -261,14 +265,23 @@ def main():
                         # Run the cycle per image
                         masks, coordinates, img_dimentions = getPixelMask(img_full,paths)
                         image_data,image_labels = getTrainingData(masks,img_dimentions)
-                        runTestsAndLog(coordinates, viewer, annotated_list,image_file,checkpointdirectory)
-                        updateArraysAndSave(data,image_data,labels,image_labels,checkpointdirectory)
-
-                        viewer.close()
-                        break
+                        flag = False
                     except Exception as e:
                         # If there was an accidential button process or some other error
                         print(f"{e} \nLabel the image")
+                    
+                    if not flag:
+                        try:
+                            runTestsAndLog(coordinates, viewer, annotated_list,image_file,checkpointdirectory)
+                            updateArraysAndSave(data,image_data,labels,image_labels,checkpointdirectory)
+                            viewer.close()
+                        except Exception as e:
+                            print(e)
+                            break
+                   
+                    
+                    
+
 
         
 
