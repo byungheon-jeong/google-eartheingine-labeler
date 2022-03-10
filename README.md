@@ -4,7 +4,7 @@ This is the project repo for a python labeling script that uses napari (https://
 
 
 - Installation (Conda)
-  - conda create --name <name> --file ./requirements.txt
+  - conda env create -file ./requirements.yml
 
 - Dataset
   - label_img: images with less than 3 dimentions that will be used to label. 
@@ -12,12 +12,18 @@ This is the project repo for a python labeling script that uses napari (https://
 
 - Directions
   > 
-  python .\src\run_annotation.py 
+  python src/run_annotation.py
   >
   
   Enter Directory: <Location of Dataset Directory with label_img & full_img subdirectories
   
+  -   Use the ./example_dataset to try out the service
+
+
   Label Image or SKIP
+  
+
+  GO TO https://byungheon-jeong.github.io/static-capstone-website/docs/intro FOR DETAILED EXPLINATION
   
   
   
